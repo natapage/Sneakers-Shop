@@ -6,9 +6,9 @@ defineProps({
   items: Array
 })
 
-const onClickAdd = () => alert(1)
-
 const addToFavourite = inject('addToFavourite')
+
+const emit = defineEmits(['addToCart'])
 </script>
 <template>
   <div class="grid grid-cols-4 gap-5">
@@ -19,10 +19,10 @@ const addToFavourite = inject('addToFavourite')
       :title="item.title"
       :price="item.price"
       :id="item.id"
-      :isAdded="false"
       :isFavourite="item.isFavourite"
-      :onClickAdd="onClickAdd"
+      :onClickAdd="() => emit('addToCart', item)"
       :onClickFafourite="() => addToFavourite(item)"
+      :isAdded="item.isAdded"
     />
   </div>
 </template>

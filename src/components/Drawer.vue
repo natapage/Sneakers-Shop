@@ -1,6 +1,11 @@
 <script setup>
 import DrawerHead from '../components/DrawerHead.vue'
 import CartItemList from '../components/CartItemList.vue'
+defineProps({
+  totalPrice: Number
+})
+
+const emit = defineEmits(['createOrder'])
 </script>
 
 <template>
@@ -12,15 +17,16 @@ import CartItemList from '../components/CartItemList.vue'
       <div class="flex items-end gap-2">
         <span>Итого</span>
         <div class="flex-1 border-b border-dashed"></div>
-        <b>12900 руб.</b>
+        <b>{{ totalPrice }} ₽</b>
       </div>
       <div class="flex items-end gap-2">
         <span>Налог 5%</span>
         <div class="flex-1 border-b border-dashed"></div>
-        <b>1074 руб.</b>
+        <b>{{ totalPrice * 0.05 }} ₽</b>
       </div>
       <button
-        disabled=""
+        @click="() => emit('createOrder')"
+        :disabled="totalPrice ? false : true"
         class="disabled:bg-slate-300 flex items-center justify-center w-full h-[55px] bg-lime-400 border rounded-xl mt-5"
       >
         <div class="flex items-center justify-center gap-4">

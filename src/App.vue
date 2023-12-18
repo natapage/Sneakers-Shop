@@ -2,12 +2,41 @@
 import Header from './components/Header.vue'
 import CardList from './components/CardList.vue'
 import axios from 'axios'
-import { onMounted, ref, watch, reactive, provide } from 'vue'
+import { onMounted, ref, watch, reactive, provide, computed } from 'vue'
 import Drawer from './components/Drawer.vue'
 
 const items = ref([])
 
-const isDrawerOpen = ref(true)
+const isDrawerOpen = ref(false)
+
+const cart = ref([])
+
+const totalPrice = computed(() => {
+  return items.value.reduce((acc, item) => {
+    if (item.isAdded) {
+      acc += item.price
+    }
+    return acc
+  }, 0)
+})
+
+const removeFromCart = (item) => {
+  cart.value.splice(cart.value.indexOf, 1)
+  item.isAdded = false
+}
+
+const addToCart = (item) => {
+  cart.value.push(item)
+  item.isAdded = true
+}
+
+const onCLickAddPlus = (item) => {
+  if (!item.isAdded) {
+    addToCart(item)
+  } else {
+    removeFromCart(item)
+  }
+}
 
 const closeDrawer = () => {
   isDrawerOpen.value = false
@@ -51,6 +80,7 @@ const addToFavourite = async (item) => {
 }
 
 provide('addToFavourite', addToFavourite)
+provide('cart', { cart, closeDrawer, openDrawer, addToCart, removeFromCart })
 
 const fetchFavourites = async () => {
   try {
@@ -67,6 +97,18 @@ const fetchFavourites = async () => {
         favouriteId: favourite.id
       }
     })
+  } catch (err) {
+    console.log(err)
+  }
+}
+const createOrder = async () => {
+  try {
+    const { data } = await axios.post('https://f52fa0c3a94f53e4.mokky.dev/orders', {
+      items: cart.value,
+      totalPrice: totalPrice.value
+    })
+    cart.value = []
+    return data
   } catch (err) {
     console.log(err)
   }
@@ -104,9 +146,9 @@ watch(filters, fetchItems)
 </script>
 
 <template>
-  <Drawer v-if="isDrawerOpen" />
+  <Drawer v-if="isDrawerOpen" :totalPrice="totalPrice" @createOrder="createOrder" />
   <div class="w-4/5 m-auto bg-white shadow-xl rounded-xl mt-14">
-    <Header />
+    <Header @open-drawer="openDrawer" :totalPrice="totalPrice" />
     <div class="p-10">
       <div class="flex items-center justify-between">
         <h2 class="mb-8 text-3xl font-bold">Все кроссовки</h2>
@@ -130,7 +172,7 @@ watch(filters, fetchItems)
           </div>
         </div>
       </div>
-      <CardList :items="items" />
+      <CardList :items="items" @add-to-cart="onCLickAddPlus" />
     </div>
   </div>
 </template>
