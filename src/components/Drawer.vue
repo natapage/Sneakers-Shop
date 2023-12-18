@@ -2,7 +2,8 @@
 import DrawerHead from '../components/DrawerHead.vue'
 import CartItemList from '../components/CartItemList.vue'
 defineProps({
-  totalPrice: Number
+  totalPrice: Number,
+  taxValue: Number
 })
 
 const emit = defineEmits(['createOrder'])
@@ -22,7 +23,7 @@ const emit = defineEmits(['createOrder'])
       <div class="flex items-end gap-2">
         <span>Налог 5%</span>
         <div class="flex-1 border-b border-dashed"></div>
-        <b>{{ totalPrice * 0.05 }} ₽</b>
+        <b>{{ taxValue }} ₽</b>
       </div>
       <button
         @click="() => emit('createOrder')"

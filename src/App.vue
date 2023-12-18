@@ -12,12 +12,14 @@ const isDrawerOpen = ref(false)
 const cart = ref([])
 
 const totalPrice = computed(() => {
-  return items.value.reduce((acc, item) => {
-    if (item.isAdded) {
-      acc += item.price
-    }
+  return cart.value.reduce((acc, item) => {
+    acc += item.price
     return acc
   }, 0)
+})
+
+const taxValue = computed(() => {
+  return totalPrice.value * 0.05
 })
 
 const removeFromCart = (item) => {
@@ -28,6 +30,19 @@ const removeFromCart = (item) => {
 const addToCart = (item) => {
   cart.value.push(item)
   item.isAdded = true
+}
+
+const createOrder = async () => {
+  try {
+    const { data } = await axios.post('https://f52fa0c3a94f53e4.mokky.dev/orders', {
+      items: cart.value,
+      totalPrice: totalPrice.value
+    })
+    cart.value = []
+    return data
+  } catch (err) {
+    console.log(err)
+  }
 }
 
 const onCLickAddPlus = (item) => {
@@ -101,18 +116,6 @@ const fetchFavourites = async () => {
     console.log(err)
   }
 }
-const createOrder = async () => {
-  try {
-    const { data } = await axios.post('https://f52fa0c3a94f53e4.mokky.dev/orders', {
-      items: cart.value,
-      totalPrice: totalPrice.value
-    })
-    cart.value = []
-    return data
-  } catch (err) {
-    console.log(err)
-  }
-}
 
 const fetchItems = async () => {
   const params = {
@@ -146,7 +149,12 @@ watch(filters, fetchItems)
 </script>
 
 <template>
-  <Drawer v-if="isDrawerOpen" :totalPrice="totalPrice" @createOrder="createOrder" />
+  <Drawer
+    v-if="isDrawerOpen"
+    :totalPrice="totalPrice"
+    :taxValue="taxValue"
+    @createOrder="createOrder"
+  />
   <div class="w-4/5 m-auto bg-white shadow-xl rounded-xl mt-14">
     <Header @open-drawer="openDrawer" :totalPrice="totalPrice" />
     <div class="p-10">
