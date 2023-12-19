@@ -10,6 +10,10 @@ const items = ref([])
 const isDrawerOpen = ref(false)
 
 const cart = ref([])
+const isCreatingOrder = ref(false)
+const isCardEmpty = computed(() => cart.value.length === 0)
+
+const cartButtonDisabled = computed(() => isCreatingOrder.value || isCardEmpty.value)
 
 const totalPrice = computed(() => {
   return cart.value.reduce((acc, item) => {
@@ -34,6 +38,7 @@ const addToCart = (item) => {
 
 const createOrder = async () => {
   try {
+    isCreatingOrder.value = true
     const { data } = await axios.post('https://f52fa0c3a94f53e4.mokky.dev/orders', {
       items: cart.value,
       totalPrice: totalPrice.value
@@ -42,8 +47,17 @@ const createOrder = async () => {
     return data
   } catch (err) {
     console.log(err)
+  } finally {
+    isCreatingOrder.value = false
   }
 }
+
+watch(cart, () => {
+  items.value = items.value.map((item) => ({
+    ...item,
+    isAdded: false
+  }))
+})
 
 const onCLickAddPlus = (item) => {
   if (!item.isAdded) {
@@ -154,6 +168,7 @@ watch(filters, fetchItems)
     :totalPrice="totalPrice"
     :taxValue="taxValue"
     @createOrder="createOrder"
+    :cartButtonDisabled="cartButtonDisabled"
   />
   <div class="w-4/5 m-auto bg-white shadow-xl rounded-xl mt-14">
     <Header @open-drawer="openDrawer" :totalPrice="totalPrice" />

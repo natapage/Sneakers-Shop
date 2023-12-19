@@ -1,9 +1,12 @@
 <script setup>
 import DrawerHead from '../components/DrawerHead.vue'
 import CartItemList from '../components/CartItemList.vue'
+import InfoBlock from '../components/InfoBlock.vue'
+
 defineProps({
   totalPrice: Number,
-  taxValue: Number
+  taxValue: Number,
+  cartButtonDisabled: Boolean
 })
 
 const emit = defineEmits(['createOrder'])
@@ -14,7 +17,13 @@ const emit = defineEmits(['createOrder'])
   <div class="fixed top-0 right-0 z-20 h-full p-8 bg-white w-96">
     <DrawerHead />
     <CartItemList />
-    <div class="flex flex-col gap-2">
+    <InfoBlock
+      v-if="totalPrice === 0"
+      description="Добавьте хотя бы одну пару кроссовок, чтобы сделать заказ"
+      imageUrl="../../public/package-icon.png"
+      title="Корзина пуста"
+    />
+    <div v-if="totalPrice" class="flex flex-col gap-2">
       <div class="flex items-end gap-2">
         <span>Итого</span>
         <div class="flex-1 border-b border-dashed"></div>
@@ -25,6 +34,7 @@ const emit = defineEmits(['createOrder'])
         <div class="flex-1 border-b border-dashed"></div>
         <b>{{ taxValue }} ₽</b>
       </div>
+
       <button
         @click="() => emit('createOrder')"
         :disabled="totalPrice ? false : true"
