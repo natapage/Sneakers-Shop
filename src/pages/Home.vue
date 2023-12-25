@@ -63,7 +63,7 @@ const fetchFavourites = async () => {
   try {
     const { data: favourites } = await axios.get('https://f52fa0c3a94f53e4.mokky.dev/favourites')
     items.value = items.value.map((item) => {
-      const favourite = favourites.find((favourite) => favourite.parentId === item.id)
+      const favourite = favourites.find((favourite) => favourite.item_id === item.id)
 
       if (!favourite) {
         return item
@@ -74,6 +74,26 @@ const fetchFavourites = async () => {
         favouriteId: favourite.id
       }
     })
+  } catch (err) {
+    console.log(err)
+  }
+}
+
+const addToFavourite = async (item) => {
+  try {
+    if (!item.isFavourite) {
+      const obj = {
+        item_id: item.id
+      }
+      item.isFavourite = true
+      const { data } = await axios.post('https://f52fa0c3a94f53e4.mokky.dev/favourites', obj)
+
+      item.favouriteId = data.id
+    } else {
+      item.isFavourite = false
+      await axios.delete(`https://f52fa0c3a94f53e4.mokky.dev/favourites/${item.favouriteId}`)
+      item.favouriteId = null
+    }
   } catch (err) {
     console.log(err)
   }
@@ -100,7 +120,7 @@ watch(cart, () => {
       </select>
 
       <div class="relative">
-        <img src="../public/search.svg" class="absolute left-3 top-3.5" />
+        <img src="../../public/search.svg" class="absolute left-3 top-3.5" />
         <input
           @input="onChangeInput"
           class="py-2 pr-4 border border-gray-400 rounded-md pl-11 focus:"
@@ -109,5 +129,5 @@ watch(cart, () => {
       </div>
     </div>
   </div>
-  <CardList :items="items" @add-to-cart="onCLickAddPlus" />
+  <CardList :items="items" @add-to-cart="onCLickAddPlus" @addToFavourite="addToFavourite" />
 </template>

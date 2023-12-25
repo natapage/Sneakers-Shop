@@ -17,6 +17,7 @@ defineProps({
   >
     <div>
       <img
+        v-if="onClickFafourite"
         :src="isFavourite ? '../../public/like-2.svg' : '../../public/like-1.svg'"
         alt="Like"
         class="absolute top-8 left-8"
@@ -32,6 +33,7 @@ defineProps({
         <b>{{ price }} руб.</b>
       </div>
       <img
+        v-if="onClickAdd"
         width="40px"
         @click="onClickAdd"
         :src="isAdded ? '../../public/checked.svg' : '../../public/plus.svg'"

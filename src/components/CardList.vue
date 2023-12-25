@@ -1,14 +1,12 @@
 <script setup>
 import Card from '../components/Card.vue'
-import { inject } from 'vue'
 
 defineProps({
-  items: Array
+  items: Array,
+  isFavourites: Boolean
 })
 
-const addToFavourite = inject('addToFavourite')
-
-const emit = defineEmits(['addToCart'])
+const emit = defineEmits(['addToCart', 'addToFavourite'])
 </script>
 <template>
   <div class="grid grid-cols-4 gap-5" v-auto-animate>
@@ -20,8 +18,8 @@ const emit = defineEmits(['addToCart'])
       :price="item.price"
       :id="item.id"
       :isFavourite="item.isFavourite"
-      :onClickAdd="() => emit('addToCart', item)"
-      :onClickFafourite="() => addToFavourite(item)"
+      :onClickAdd="isFavourites ? null : () => emit('addToCart', item)"
+      :onClickFafourite="isFavourites ? null : () => emit('addToFavourite', item)"
       :isAdded="item.isAdded"
     />
   </div>
